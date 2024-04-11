@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Art {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  CFGscale       BigInt
+  Clip_skip      BigInt
+  Sampler        String
+  Seed           BigInt
+  Steps          BigInt
+  artistId       String    @db.ObjectId
+  chackPoint     String
+  cmp            String
+  createdAt      DateTime? @db.Date
+  height         BigInt
+  hide           Boolean
+  img            String
+  lora           String
+  negetivePrompt String
+  nsfw           Boolean
+  prompt         String
+  tag            String
+  width          BigInt
+}
+
+model ArtGroup {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  artistId  String  @db.ObjectId
+  name      String
+  published Boolean
+}
+
+model Artist {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  about      String
+  email      String   @unique
+  joinedAt   DateTime @db.Date
+  name       String   @unique
+  password   String
+  profilePic String
+}
+
+model CmpImageRef {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+model Comment {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  artId    String   @db.ObjectId
+  artistId String   @db.ObjectId
+  commet   String
+  date     DateTime @db.Date
+}
+
+model Favourite {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  artId    String @db.ObjectId
+  artistId String @db.ObjectId
+}
+
+model Group {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  artGroupId String @db.ObjectId
+  artId      String @db.ObjectId
+  uuid       String @unique
+}
+
+model React {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  artId    String @db.ObjectId
+  artistId String @db.ObjectId
+  type     String
+}
