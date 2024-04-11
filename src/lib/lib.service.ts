@@ -66,6 +66,7 @@ export class LibService {
      async uploadWithSharp(url: string): Promise<{
         isSuccess: boolean,
         url: string | 'NOT_FOUND' | 'FAILED'
+        public_id:string|null
     }> {
         try {
             const imgBuffer = await axios.get(url, { responseType: 'arraybuffer' });
@@ -76,20 +77,17 @@ export class LibService {
             if (cld && cld.url) {
                 return {
                     isSuccess: true,
-                    url: cld.url
+                    url: cld.url,
+                    public_id:cld.public_id
                 };
             } else {
-                return {
-                    isSuccess: false,
-                    url: 'NOT_FOUND'
-                };
+                throw new HttpException('Something went wron',HttpStatus.BAD_REQUEST)
             }
         } catch (error) {
             console.log(error);
-            return {
-                isSuccess: false,
-                url: 'FAILED'
-            };
+            throw new HttpException({
+                error
+            },HttpStatus.BAD_REQUEST)
         }
     }
 

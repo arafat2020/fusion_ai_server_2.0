@@ -8,7 +8,6 @@ async function bootstrap() {
     .setDescription('A server for Ai generated image storeage and share as social media. It is made by using nest js which uses express under. For ORM it uses prisma and for database it uses Mongodb')
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('fsi')
     .build();
   const app = await NestFactory.create(AppModule);
   const document = SwaggerModule.createDocument(app, config);

@@ -1,5 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -7,73 +11,107 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Art {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  CFGscale       BigInt
-  Clip_skip      BigInt
-  Sampler        String
-  Seed           BigInt
-  Steps          BigInt
-  artistId       String    @db.ObjectId
-  chackPoint     String
-  cmp            String
-  createdAt      DateTime? @db.Date
-  height         BigInt
-  hide           Boolean
-  img            String
-  lora           String
-  negetivePrompt String
-  nsfw           Boolean
-  prompt         String
-  tag            String
-  width          BigInt
-}
-
-model ArtGroup {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  artistId  String  @db.ObjectId
-  name      String
-  published Boolean
-}
-
 model Artist {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String      @unique
   about      String
-  email      String   @unique
-  joinedAt   DateTime @db.Date
-  name       String   @unique
+  profilePic String?
+  email      String      @unique
   password   String
-  profilePic String
+  joinedAt   DateTime    @default(now())
+  artWorks   Art[]
+  react      React[]
+  comment    Comment[]
+  Favourite  Favourite[]
+  ArtGroup   ArtGroup[]
 }
 
-model CmpImageRef {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+model Art {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  img            String
+  public_id      String?     @unique
+  tag            String
+  createdAt      DateTime?   @default(now())
+  width          Int
+  height         Int
+  nsfw           Boolean     @default(false)
+  hide           Boolean     @default(true)
+  prompt         String?
+  negetivePrompt String?
+  Sampler        String?
+  CFGscale       Int?
+  Steps          Int?
+  Seed           Int?
+  Clip_skip      Int?
+  chackPoint     String?
+  lora           String?
+  Artist         Artist      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId       String      @db.ObjectId
+  react          React[]
+  comment        Comment[]
+  Favourite      Favourite[]
+  group          Group[]
+  cmp            String?
+  cmpPubLic_ID   String?     @unique
+
+  @@index([artistId])
+}
+
+model React {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  type     String  @default("Like")
+  Artist   Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId String  @db.ObjectId
+  Art      Art?    @relation(fields: [artId], references: [id], onDelete: Cascade)
+  artId    String  @db.ObjectId
+
+  @@index([artistId])
+  @@index([artId])
 }
 
 model Comment {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  artId    String   @db.ObjectId
-  artistId String   @db.ObjectId
   commet   String
-  date     DateTime @db.Date
+  date     DateTime @default(now())
+  Art      Art?     @relation(fields: [artId], references: [id], onDelete: Cascade)
+  artId    String   @db.ObjectId
+  Artist   Artist?  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId String   @db.ObjectId
+
+  @@index([artistId])
+  @@index([artId])
 }
 
 model Favourite {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  artId    String @db.ObjectId
-  artistId String @db.ObjectId
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  Art      Art?    @relation(fields: [artId], references: [id], onDelete: Cascade)
+  artId    String? @db.ObjectId
+  Artist   Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId String? @db.ObjectId
+
+  @@index([artistId])
+  @@index([artId])
+}
+
+model ArtGroup {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  Artist    Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId  String? @db.ObjectId
+  Group     Group[]
+  published Boolean @default(false)
+
+  @@index([artistId])
 }
 
 model Group {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  artGroupId String @db.ObjectId
-  artId      String @db.ObjectId
-  uuid       String @unique
-}
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  ArtGroup   ArtGroup @relation(fields: [artGroupId], references: [id], onDelete: Cascade)
+  artGroupId String   @db.ObjectId
+  uuid       String
+  Art        Art?     @relation(fields: [artId], references: [id], onDelete: Cascade)
+  artId      String?  @db.ObjectId
 
-model React {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  artId    String @db.ObjectId
-  artistId String @db.ObjectId
-  type     String
+  @@unique([uuid])
+  @@index([artId])
 }

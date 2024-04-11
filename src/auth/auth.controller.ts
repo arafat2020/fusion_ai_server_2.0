@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ValidationPipe } from './auth.pipe';
-import { SignUpDto } from './auth.dto';
+import { SignUpDto, SingInDTO } from './auth.dto';
 import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
@@ -29,7 +29,7 @@ export class AuthController {
     signIn(@Body(new ValidationPipe) {
         email,
         password
-    }:SignUpDto){
+    }:SingInDTO){
         return this.authService.signIn({
             email,
             password
