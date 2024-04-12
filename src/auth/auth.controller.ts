@@ -3,10 +3,12 @@ import { AuthService } from './auth.service';
 import { ValidationPipe } from './auth.pipe';
 import { SignUpDto, SingInDTO } from './auth.dto';
 import { AuthGuard } from './auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { Artist } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService:AuthService){}
+    constructor(private authService: AuthService) { }
 
     @Post('signUp')
     signUp(@Body(new ValidationPipe) {
@@ -15,7 +17,7 @@ export class AuthController {
         imgUrl,
         name,
         password
-    }:SignUpDto){
+    }: SignUpDto) {
         return this.authService.signUp({
             name,
             about,
@@ -26,19 +28,24 @@ export class AuthController {
     }
 
     @Post('signIn')
-    signIn(@Body(new ValidationPipe) {
+    async signIn(@Body(new ValidationPipe) {
         email,
         password
-    }:SingInDTO){
-        return this.authService.signIn({
+    }: SingInDTO) {
+        const user = await this.authService.signIn({
             email,
             password
         })
+        user.artist.password = null
+        return user
     }
 
-    @UseGuards(AuthGuard)
     @Get('profile')
-    me(@Request() req){
-        return req.user
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    async me(@Request() req) {
+        const user = await req.user as Artist
+        user.password = null
+        return user
     }
 }

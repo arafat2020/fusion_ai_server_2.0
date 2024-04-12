@@ -10,16 +10,15 @@ import sharp from "sharp";
 export class LibService {
     constructor(private config:ConfigService){}
 
-    encrypt:bcrypt
 
     async hashed(plainPassword:string) {
-        return await this.encrypt.hash(plainPassword, 10).then(async hash => {
+        return await bcrypt.hash(plainPassword, 10).then(async hash => {
             return await hash
         })
     }
 
     async verifyHash(plainPassword:string,hashedPassword:string) {
-        return await this.encrypt.compare(plainPassword, hashedPassword).then(async (result) => {
+        return await bcrypt.compare(plainPassword, hashedPassword).then(async (result) => {
             return await result
         });
     }

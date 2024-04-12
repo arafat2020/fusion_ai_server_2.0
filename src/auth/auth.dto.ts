@@ -50,7 +50,8 @@ export class SignUpDto {
 
 export class SingInDTO {
     @ApiProperty({
-        description: 'Email of the new user',
+        description: 'Email of the singUped user',
+        default:"test7@gmail.com"
     })
     @IsEmail({}, {
         message: 'Enter a valid Email'
@@ -59,8 +60,8 @@ export class SingInDTO {
 
     @ApiProperty({
         description: 'Password of the new user',
-        required: true,
-    })
+        default:'1234'
+        })
     @IsNotEmpty({
         message: "Password is Required",
     })

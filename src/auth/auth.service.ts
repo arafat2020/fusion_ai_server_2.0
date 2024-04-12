@@ -7,13 +7,13 @@ import { LibService } from 'src/lib/lib.service';
 
 @Injectable()
 export class AuthService {
-    constructor(
+     constructor(
         private prisma: DbService,
         private lib: LibService,
         private jwt: JwtService,
         private config: ConfigService
     ) {
-        prisma.init()
+        this.prisma.init()
     }
 
     async signUp({
@@ -52,7 +52,9 @@ export class AuthService {
             }
         } catch (error) {
             this.lib.deleteImage
-            throw new HttpException(error, HttpStatus.BAD_REQUEST)
+            throw new HttpException({
+                err: error
+            }, HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -80,7 +82,11 @@ export class AuthService {
                 })
             }
         } catch (error) {
-            throw new HttpException(error, HttpStatus.BAD_REQUEST)
+            console.log(error);
+            
+            throw new HttpException({
+                err: error
+            }, HttpStatus.BAD_REQUEST)
         }
     }
 
