@@ -10,7 +10,7 @@ import { ReactModule } from './react/react.module';
 import { CommentModule } from './comment/comment.module';
 import { GroupModule } from './group/group.module';
 import { FavoriteModule } from './favorite/favorite.module';
-
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -23,6 +23,7 @@ import { FavoriteModule } from './favorite/favorite.module';
     CommentModule,
     GroupModule,
     FavoriteModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
