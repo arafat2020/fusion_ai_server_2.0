@@ -12,7 +12,7 @@ export class ImageService {
     constructor(
         private config: ConfigService,
         private lib: LibService,
-        private prisma:DbService
+        private prisma: DbService
     ) { }
     hf = new HfInference(this.config.get("HG_TOKEN"))
 
@@ -43,6 +43,49 @@ export class ImageService {
 
         }
 
+    }
+
+    async imgToimg({ img_url, prompt, negative_prompt, res }: {
+        img_url: string,
+        prompt: string,
+        negative_prompt: string,
+        res: Response
+    }) {
+        const instance = await this.hf.imageToImage({
+            inputs: await (await fetch(`${img_url}`)).blob(),
+            model: 'stabilityai/stable-diffusion-xl-refiner-1.0',
+            parameters: {
+                prompt,
+                negative_prompt,
+                num_inference_steps: 20,
+            }
+        })
+        const s = await instance.arrayBuffer()
+        const uint8Array = await new Uint8Array(s);
+        const buffer = await Buffer.from(uint8Array);
+        const base64ImageData = await buffer.toString('base64');
+        const img = await this.lib.cldUpload(`data:image/png;base64,${base64ImageData}`)
+        return res.send(img)
+    }
+
+    async imgTotext({ img_url, res }: {
+        img_url: string,
+        res: Response
+    }) {
+        const instance = await this.hf.imageToText({
+            data: await (await fetch(`${img_url}`)).blob(),
+            model: 'Salesforce/blip-image-captioning-large'
+        })
+        const text = instance.generated_text
+        return res.send({
+            text
+        })
+    }
+
+    async delete({ pubic_id }: {
+        pubic_id: string
+    }) {
+        return this.lib.deleteImage(pubic_id)
     }
 
 }
