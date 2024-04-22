@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 // import sharp from "sharp";
 import { LibService } from 'src/lib/lib.service';
-import { DbService } from 'src/db/db.service';
+import { Model } from './image.dto';
 
 
 @Injectable()
@@ -12,20 +12,22 @@ export class ImageService {
     constructor(
         private config: ConfigService,
         private lib: LibService,
-        private prisma: DbService
     ) { }
     hf = new HfInference(this.config.get("HG_TOKEN"))
 
-    async generate({ res, negative_prompt, prompt, height, width }: {
+
+    async generate({ res, negative_prompt, prompt, height, width, model }: {
         res: Response,
         prompt: string,
         negative_prompt: string | undefined,
         height: number,
-        width: number
+        width: number,
+        model: Model
     }) {
+
         try {
             const instance = await this.hf.textToImage({
-                model: 'stabilityai/stable-diffusion-xl-base-1.0',
+                model: model ? model : Model.STABLE_DEFUSION,
                 inputs: prompt,
                 parameters: {
                     negative_prompt,
@@ -39,7 +41,9 @@ export class ImageService {
             return res.send(img)
         } catch (error) {
             console.log(error);
-            throw new HttpException(error, HttpStatus.BAD_REQUEST)
+            throw new HttpException({
+                error: error
+            }, HttpStatus.BAD_REQUEST)
 
         }
 
@@ -51,35 +55,49 @@ export class ImageService {
         negative_prompt: string,
         res: Response
     }) {
-        const instance = await this.hf.imageToImage({
-            inputs: await (await fetch(`${img_url}`)).blob(),
-            model: 'stabilityai/stable-diffusion-xl-refiner-1.0',
-            parameters: {
-                prompt,
-                negative_prompt,
-                num_inference_steps: 20,
-            }
-        })
-        const s = await instance.arrayBuffer()
-        const uint8Array = await new Uint8Array(s);
-        const buffer = await Buffer.from(uint8Array);
-        const base64ImageData = await buffer.toString('base64');
-        const img = await this.lib.cldUpload(`data:image/png;base64,${base64ImageData}`)
-        return res.send(img)
+        try {
+            const instance = await this.hf.imageToImage({
+                inputs: await (await fetch(`${img_url}`)).blob(),
+                model: 'stabilityai/stable-diffusion-xl-refiner-1.0',
+                parameters: {
+                    prompt,
+                    negative_prompt,
+                    num_inference_steps: 20,
+                }
+            })
+            const s = await instance.arrayBuffer()
+            const uint8Array = await new Uint8Array(s);
+            const buffer = await Buffer.from(uint8Array);
+            const base64ImageData = await buffer.toString('base64');
+            const img = await this.lib.cldUpload(`data:image/png;base64,${base64ImageData}`)
+            return res.send(img)
+        } catch (error) {
+            console.log(error);
+            throw new HttpException({
+                error: error
+            }, HttpStatus.BAD_REQUEST)
+        }
     }
 
     async imgTotext({ img_url, res }: {
         img_url: string,
         res: Response
     }) {
-        const instance = await this.hf.imageToText({
-            data: await (await fetch(`${img_url}`)).blob(),
-            model: 'Salesforce/blip-image-captioning-large'
-        })
-        const text = instance.generated_text
-        return res.send({
-            text
-        })
+        try {
+            const instance = await this.hf.imageToText({
+                data: await (await fetch(`${img_url}`)).blob(),
+                model: 'Salesforce/blip-image-captioning-large'
+            })
+            const text = instance.generated_text
+            return res.send({
+                text
+            })
+        } catch (error) {
+            console.log(error);
+            throw new HttpException({
+                error: error
+            }, HttpStatus.BAD_REQUEST)
+        }
     }
 
     async delete({ pubic_id }: {

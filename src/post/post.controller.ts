@@ -48,7 +48,7 @@ export class PostController {
         prompt,
         tag
     }: PostCreateDTO, @Request() req) {
-        this.createService.create({
+        return this.createService.create({
             CFGscale,
             chackPoint,
             Clip_skip,
@@ -105,14 +105,14 @@ export class PostController {
     }
 
     @Get('get')
-    getPostById(@Query(new ValidationPipe) {id}: GetPostByIdDTO) {
+    getPostById(@Query(new ValidationPipe) { id }: GetPostByIdDTO) {
         return this.getService.getPostById({
             id
         })
     }
 
     @Get('get/feed')
-    getPostForFeed(@Query(new ValidationPipe) {skip}:GetPsotForFeedDTO) {
+    getPostForFeed(@Query(new ValidationPipe) { skip }: GetPsotForFeedDTO) {
         return this.getService.getPostForFeed({
             skip
         })
@@ -121,10 +121,10 @@ export class PostController {
     @Delete('delete')
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
-    delete(@Body(new ValidationPipe) {id}:PostDeletDTO, @Request() req){
+    delete(@Body(new ValidationPipe) { id }: PostDeletDTO, @Request() req) {
         return this.deleteService.delete({
             id,
-            user:req.user
+            user: req.user
         })
     }
 

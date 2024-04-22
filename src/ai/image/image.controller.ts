@@ -1,9 +1,11 @@
-import { Controller, UseGuards, Post, Body, Res } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Res, Query } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiProperty, ApiQuery } from '@nestjs/swagger';
 import { ValidationPipe } from 'src/auth/auth.pipe';
-import { ImageGenDTO, ImageGenDeletDTO, ImageToImageDto, ImageToTextDto } from './image.dto';
+import { ImageGenDTO, ImageGenDeletDTO, ImageToImageDto, ImageToTextDto, Model } from './image.dto';
+
+
 
 @UseGuards(AuthGuard)
 @Controller('image')
@@ -12,13 +14,15 @@ export class ImageController {
 
     @Post('gen')
     @ApiBearerAuth()
-    generate(@Body(new ValidationPipe()) credential: ImageGenDTO, @Res() res) {
+    @ApiQuery({name:'model', enum:Model})
+    generate(@Body(new ValidationPipe()) credential: ImageGenDTO, @Res() res, @Query("model") model:Model) {        
         return this.imageService.generate({
             height: credential.height,
             negative_prompt: credential.negative_prompt,
             prompt: credential.prompt,
             res: res,
             width: credential.width,
+            model:model
         })
     }
 

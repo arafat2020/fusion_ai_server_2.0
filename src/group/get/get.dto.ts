@@ -6,5 +6,6 @@ export class GroupGeteDTO {
     @ApiProperty()
     @IsNotEmpty()
     artGroupID: string
-    
+
 }
+
