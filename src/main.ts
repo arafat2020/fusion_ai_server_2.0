@@ -10,7 +10,7 @@ async function bootstrap() {
     <li>Like, share and comment like a sociel media</li>
     <li>Create Yor Own group of image</li>
   </ol>
-  <h3>Thise platfrom is poowerd by:-</h3>
+  <h3>Thise platfrom is powerd by:-</h3>
   <ol class="tech">
     <li>Nest jS</li>
     <li>Prisma ORM</li>
