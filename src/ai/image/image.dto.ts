@@ -50,5 +50,6 @@ export enum Model {
     ANIME = "cagliostrolab/animagine-xl-3.1",
     STABLE_DEFUSION = "stabilityai/stable-diffusion-xl-base-1.0",
     REALISTIC_VISION = "stablediffusionapi/realistic-vision",
-    DREAMSHAPER = "Lykon/dreamshaper-xl-1-0"
+    DREAMSHAPER = "Lykon/dreamshaper-xl-1-0",
+    ABSOLUT_REALITY = "Yntec/AbsoluteReality"
 }
