@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const doc = /*html*/`<h2> A backend service for Generate and share Ai Images. </h1>
+  const doc = /*html*/ `<h2> A backend service for Generate and share Ai Images. </h1>
   <ol>
     <li>Generate Image from Differnt model</li>
     <li>Save Image For your showcase</li>
@@ -17,7 +17,7 @@ async function bootstrap() {
     <li>Cloudinary</li>
     <li>MongoDB</li>
   </ol>
-  `
+  `;
   const config = new DocumentBuilder()
     .setTitle('Fusion AI server 2.0')
     .setDescription(doc)

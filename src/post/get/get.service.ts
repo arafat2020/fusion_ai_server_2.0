@@ -99,7 +99,7 @@ export class GetService {
         }
     }
 
-    async getPostForFeed({ skip }: { skip: number|undefined }) {
+    async getPostForFeed({ skip }: { skip: number | undefined | string }) {
         try {
             return this.prisma.$transaction([
                 this.prisma.art.findMany({
@@ -149,7 +149,7 @@ export class GetService {
                         id: 'desc'
                     },
                     take: 20,
-                    skip: skip ? skip : 0
+                    skip: skip ? (typeof skip === "string"? parseInt(skip, 10) : 0) : 0
                 }),
                 this.prisma.art.count({
                     where: {

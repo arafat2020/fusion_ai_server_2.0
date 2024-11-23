@@ -12,5 +12,5 @@ export class GetPsotForFeedDTO {
         required: false
     })
     @IsNumberString()
-    skip: number | undefined
+    skip: number | undefined | string
 }
