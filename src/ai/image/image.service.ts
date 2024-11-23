@@ -2,9 +2,13 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HfInference } from "@huggingface/inference";
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-// import sharp from "sharp";
 import { LibService } from 'src/lib/lib.service';
 import { Model } from './image.dto';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
+import { queues } from 'src/queues';
+import { Artist } from '@prisma/client';
+
 
 
 @Injectable()
@@ -12,20 +16,24 @@ export class ImageService {
     constructor(
         private config: ConfigService,
         private lib: LibService,
+        @InjectQueue(queues.POST) private audioQueue: Queue
     ) { }
     hf = new HfInference(this.config.get("HG_TOKEN"))
 
 
-    async generate({ res, negative_prompt, prompt, height, width, model }: {
+    async generate({ res, negative_prompt, prompt, height, width, model,user }: {
         res: Response,
         prompt: string,
         negative_prompt: string | undefined,
         height: number,
         width: number,
-        model: Model
+        model: Model,
+        user:Artist
     }) {
 
         try {
+            
+
             const instance = await this.hf.textToImage({
                 model: model ? model : Model.STABLE_DEFUSION,
                 inputs: prompt,
@@ -38,6 +46,14 @@ export class ImageService {
             const buffer = await Buffer.from(uint8Array);
             const base64ImageData = await buffer.toString('base64');
             const img = await this.lib.cldUpload(`data:image/png;base64,${base64ImageData}`)
+            this.audioQueue.add({
+                prompt,
+                negative_prompt,
+                img,
+                user
+            },{
+                removeOnComplete:true
+            })
             return res.send(img)
         } catch (error) {
             console.log(error);
@@ -56,6 +72,7 @@ export class ImageService {
         res: Response
     }) {
         try {
+            
             const instance = await this.hf.imageToImage({
                 inputs: await (await fetch(`${img_url}`)).blob(),
                 model: 'stabilityai/stable-diffusion-xl-refiner-1.0',
@@ -70,6 +87,7 @@ export class ImageService {
             const buffer = await Buffer.from(uint8Array);
             const base64ImageData = await buffer.toString('base64');
             const img = await this.lib.cldUpload(`data:image/png;base64,${base64ImageData}`)
+           
             return res.send(img)
         } catch (error) {
             console.log(error);
